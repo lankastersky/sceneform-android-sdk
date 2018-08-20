@@ -29,7 +29,9 @@ import android.widget.Toast;
 import com.google.ar.core.Anchor;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
+import com.google.ar.core.Pose;
 import com.google.ar.sceneform.AnchorNode;
+import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
 import com.google.ar.sceneform.ux.TransformableNode;
@@ -80,18 +82,27 @@ public class HelloSceneformActivity extends AppCompatActivity {
           }
 
           // Create the Anchor.
-          Anchor anchor = hitResult.createAnchor();
+//          Anchor anchor = hitResult.createAnchor();
+          Anchor anchor = hitResult.getTrackable().createAnchor(hitResult.getHitPose().compose(
+              Pose.makeTranslation(0f, 0f, -anchor_z)));
+          anchor_z += 5f;
+
           AnchorNode anchorNode = new AnchorNode(anchor);
           anchorNode.setParent(arFragment.getArSceneView().getScene());
 
           // Create the transformable andy and add it to the anchor.
           TransformableNode andy = new TransformableNode(arFragment.getTransformationSystem());
+          andy.getScaleController().setMaxScale(andySize);
+          andy.setLocalScale(new Vector3(andySize, andySize, andySize));
+          andySize *= 2;
           andy.setParent(anchorNode);
           andy.setRenderable(andyRenderable);
           andy.select();
         });
   }
 
+  float anchor_z = 0f;
+  float andySize = 1f;
   /**
    * Returns false and displays an error message if Sceneform can not run, true if Sceneform can run
    * on this device.
